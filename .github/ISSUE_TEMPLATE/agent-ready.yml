@@ -1,0 +1,52 @@
+name: Agent-ready engineering task
+description: A scoped library change with reviewable acceptance criteria
+title: "[Agent-ready] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe one bounded change. If the application repository `go-tuner` is also affected, include its issue or pull request and state the required release order.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and desired outcome
+      description: What should change, and why?
+      placeholder: Describe the observable behavior, not just an implementation idea.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: List observable outcomes that can be reviewed or checked.
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation
+      description: Required commands, platforms, and any hardware checks.
+      value: |
+        - go vet ./...
+        - go test -shuffle=on -count=1 ./...
+        - go build ./...
+        - Windows audio-device validation, if relevant
+    validations:
+      required: true
+  - type: textarea
+    id: cross_repo
+    attributes:
+      label: Cross-repository coordination
+      description: If go-tuner is affected, link its issue/PR, describe the API contract, and state which change must merge or release first. Otherwise write “None.”
+      placeholder: None
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Constraints and out of scope
+      description: Compatibility requirements, files or behavior to avoid, and any known risks.
+      placeholder: Keep public APIs backward compatible unless a breaking change is explicitly approved.

@@ -1,6 +1,8 @@
 module github.com/soockee/go-record
 
-go 1.23.1
+go 1.27.0
+
+toolchain go1.27.3
 
 require (
 	github.com/DylanMeeus/GoAudio v0.13.1

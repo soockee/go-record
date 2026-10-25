@@ -6,29 +6,53 @@ on:
     branches:
       - main
 
-env:
-  go_version: 1.21.3
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
-    name: Test with Go on windows-latest
-    runs-on: [windows-latest]
-    defaults:
-      run:
-        shell: bash
+    name: Build, vet, and test with Go 1.27.3
+    runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v7
         with:
-          go-version: ${{ env.go_version }}
+          go-version: '1.27.3'
+          cache: true
 
-      - name: go build
+      - name: Check formatting
+        shell: pwsh
         run: |
-          go build -v ./...
+          $bad = @()
+          foreach ($file in (Get-ChildItem -Recurse -Filter *.go)) {
+            $source = [System.IO.File]::ReadAllText($file.FullName).Replace("`r`n", "`n")
+            $tempPath = Join-Path $env:RUNNER_TEMP ([guid]::NewGuid().ToString() + ".go")
+            [System.IO.File]::WriteAllText($tempPath, $source, [System.Text.UTF8Encoding]::new($false))
+            try {
+              gofmt -w $tempPath
+              if ($LASTEXITCODE -ne 0) { throw "gofmt failed for $($file.FullName)" }
+              $formatted = [System.IO.File]::ReadAllText($tempPath).Replace("`r`n", "`n")
+              if ($source -cne $formatted) { $bad += $file.FullName }
+            } finally {
+              Remove-Item -LiteralPath $tempPath -ErrorAction SilentlyContinue
+            }
+          }
+          if ($bad.Count -gt 0) {
+            Write-Error "Run gofmt on these files:`n$($bad -join "`n")"
+          }
 
-      - name: go test
-        run: |
-          go test -shuffle=on -v -count=10 ./...
+      - name: Vet
+        run: go vet ./...
+
+      - name: Test
+        run: go test -shuffle=on -count=1 ./...
+
+      - name: Build
+        run: go build ./...

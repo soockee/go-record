@@ -26,6 +26,11 @@ A library to capture and render audio using WASAPI.
 
 This project provides functionalities to capture and render audio using WASAPI. It includes functions to list audio devices, capture audio from a specified device, and render audio to a specified device.
 
+## Requirements
+
+- Go 1.27.3 (the module declares Go 1.27.0 and pins the Go 1.27.3 toolchain)
+- Windows
+
 ## Example
 
 The following is an example of a main function that captures and renders audio:
